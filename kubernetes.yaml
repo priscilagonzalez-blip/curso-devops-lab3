@@ -1,0 +1,78 @@
+# ── Namespace ──────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pgonzalez
+
+---
+# ── ConfigMap ──────────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: curso-devops-lab3-config
+  namespace: pgonzalez
+data:
+  USER_KEY: "priscila-gonzalez"
+
+---
+# ── Secret ─────────────────────────────────────────────────
+apiVersion: v1
+kind: Secret
+metadata:
+  name: curso-devops-lab3-secret
+  namespace: pgonzalez
+type: Opaque
+data:
+  BD_PASSWORD: cGFzc3dvcmQxMjM=  # base64 de "password123"
+
+---
+# ── Deployment ─────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curso-devops-lab3
+  namespace: pgonzalez
+  labels:
+    app: curso-devops-lab3
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: curso-devops-lab3
+  template:
+    metadata:
+      labels:
+        app: curso-devops-lab3
+    spec:
+      containers:
+        - name: curso-devops-lab3
+          image: ghcr.io/priscilagonzalez-blip/curso-devops-lab3:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: USER_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: curso-devops-lab3-config
+                  key: USER_KEY
+            - name: BD_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: curso-devops-lab3-secret
+                  key: BD_PASSWORD
+
+---
+# ── Service ────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: curso-devops-lab3-service
+  namespace: pgonzalez
+spec:
+  selector:
+    app: curso-devops-lab3
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
