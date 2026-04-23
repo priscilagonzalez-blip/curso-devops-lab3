@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS20'
+    }
+
     environment {
         APP_NAME        = 'curso-devops-lab3'
         DOCKERHUB_USER  = 'kaptor73'
