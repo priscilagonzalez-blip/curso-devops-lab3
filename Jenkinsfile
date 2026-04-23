@@ -29,11 +29,6 @@ pipeline {
             steps {
                 sh 'npm run test:cov'
             }
-            post {
-                always {
-                    junit 'coverage/junit.xml'
-                }
-            }
         }
 
         stage('Análisis SonarQube') {
